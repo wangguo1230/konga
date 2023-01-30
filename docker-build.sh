@@ -1,0 +1,1 @@
+docker buildx build --platform linux/arm64,linux/amd64 -t zerowgd/konga:0.14.9 . --push

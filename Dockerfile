@@ -1,19 +1,12 @@
-FROM node:12.16-alpine
+FROM --platform=$TARGETPLATFORM node:12.16.3-stretch
 
 COPY . /app
 
 WORKDIR /app
 
-RUN apk upgrade --update \
-    && apk add bash git ca-certificates \
-    && npm install -g bower \
+RUN npm install -g bower \
     && npm --unsafe-perm --production install \
-    && apk del git \
-    && rm -rf /var/cache/apk/* \
-        /app/.git \
-        /app/screenshots \
-        /app/test \
-    && adduser -H -S -g "Konga service owner" -D -u 1200 -s /sbin/nologin konga \
+    && adduser --no-create-home --system  --disabled-password --uid 1200 --shell /usr/sbin/nologin konga \
     && mkdir /app/kongadata /app/.tmp \
     && chown -R 1200:1200 /app/views /app/kongadata /app/.tmp
 
