@@ -1,0 +1,22 @@
+# 如果在构建镜像的时候报  integrity checksum failed when using sha1 或 no such file or directory 
+# 将package-lock.json 删掉后重试打包。
+FROM --platform=linux/arm64/v8 node:12.16.3-stretch
+
+COPY . /app
+
+WORKDIR /app
+
+RUN npm install -g bower patch-package@6.5.1  \
+    && npm --unsafe-perm --production install \
+    && adduser --no-create-home --system  --disabled-password --uid 1200 --shell /usr/sbin/nologin konga \
+    && mkdir -p /app/kongadata /app/.tmp \
+    && chown -R 1200:1200 /app/views /app/kongadata /app/.tmp
+
+EXPOSE 1337
+
+VOLUME /app/kongadata
+
+HEALTHCHECK --interval=30s --timeout=3s --retries=10 --start-period=5s \
+CMD curl -f http://localhost:1337/register || exit 1
+
+ENTRYPOINT ["/app/start.sh"]
